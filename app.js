@@ -40,6 +40,10 @@ app.use(express.urlencoded({ extended: false }));
 
 // app.get("/", (req, res) => res.render("index"));
 
+app.use((req, res, next) => {
+    req.me = data.users[1]
+    next()
+})
 
 app.get('/users', (req, res) => {
     return res.send(Object.values(data.users))
@@ -61,12 +65,26 @@ app.post('/messages', (req, res) => {
     const id = uuid()
     const message = {
         id,
-        text: req.body.text
+        text: req.body.text,
+        userId: req.me.id
     }
 
     data.messages[id] = message
 
     return res.send(message)
+})
+
+
+app.delete('/messages/:messageId', (req, res) => {
+	const {
+	  [req.params.messageId]: message,
+	    ...otherMessages
+	} = data.messages;
+
+	data.messages = otherMessages;
+
+	return res.send(message);
+
 })
 
 app.post('/users', (req, res) => {
