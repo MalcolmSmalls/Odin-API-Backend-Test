@@ -6,6 +6,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const indexRouter = require('./routes/index')
 const dotenv = require('dotenv')
 const data = require("./data")
+const { uuid }= require('uuidv4')
 // const mongoose = require("mongoose");
 // const Schema = mongoose.Schema;
 
@@ -23,6 +24,9 @@ const data = require("./data")
 // );
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
+
 app.set("views", path.join( __dirname, 'views'));
 app.set("view engine", "ejs");
 
@@ -51,6 +55,18 @@ app.get('/messages', (req, res) => {
 
 app.get('/messages/:messageId', (req, res) => {
     return res.send(data.messages[req.params.messageId])
+})
+
+app.post('/messages', (req, res) => {
+    const id = uuid()
+    const message = {
+        id,
+        text: req.body.text
+    }
+
+    data.messages[id] = message
+
+    return res.send(message)
 })
 
 app.post('/users', (req, res) => {
