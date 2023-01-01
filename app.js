@@ -41,6 +41,18 @@ app.get('/users', (req, res) => {
     return res.send(Object.values(data.users))
 })
 
+app.get('/users/:userId', (req, res) => {
+    return res.send(data.users[req.params.userId])
+})
+
+app.get('/messages', (req, res) => {
+    return res.send(Object.values(data.messages))
+})
+
+app.get('/messages/:messageId', (req, res) => {
+    return res.send(data.messages[req.params.messageId])
+})
+
 app.post('/users', (req, res) => {
     return res.send('POST HTTP method on user resource')
 })
