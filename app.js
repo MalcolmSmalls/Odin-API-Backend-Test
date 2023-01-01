@@ -4,6 +4,7 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const indexRouter = require('./routes/index')
+const dotenv = require('dotenv')
 // const mongoose = require("mongoose");
 // const Schema = mongoose.Schema;
 
@@ -32,6 +33,24 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/", (req, res) => res.render("index"));
+// app.get("/", (req, res) => res.render("index"));
+
+
+app.get('/users', (req, res) => {
+    return res.send('Get HTTP method on user resource')
+})
+
+app.post('/users', (req, res) => {
+    return res.send('POST HTTP method on user resource')
+})
+
+app.put('/users/:userId', (req, res) => {
+    return res.send(`PUT HTTP method on user/${req.params.userId} resource`)
+})
+
+app.delete('/users/:userId', (req, res) => {
+    return res.send(`DELETE HTTP method on user/${req.params.userId} resource`)
+})
+
 
 app.listen(3000, () => console.log("app listening on port 3000!"));
