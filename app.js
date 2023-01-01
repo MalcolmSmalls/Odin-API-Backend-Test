@@ -5,6 +5,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const indexRouter = require('./routes/index')
 const dotenv = require('dotenv')
+const data = require("./data")
 // const mongoose = require("mongoose");
 // const Schema = mongoose.Schema;
 
@@ -37,7 +38,7 @@ app.use(express.urlencoded({ extended: false }));
 
 
 app.get('/users', (req, res) => {
-    return res.send('Get HTTP method on user resource')
+    return res.send(Object.values(data.users))
 })
 
 app.post('/users', (req, res) => {
