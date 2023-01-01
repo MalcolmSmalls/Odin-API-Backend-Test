@@ -5,8 +5,9 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const indexRouter = require('./routes/index')
 const dotenv = require('dotenv')
-const data = require("./data")
+const data = require("./models/data")
 const { uuid }= require('uuidv4')
+
 // const mongoose = require("mongoose");
 // const Schema = mongoose.Schema;
 
@@ -40,25 +41,33 @@ app.use(express.urlencoded({ extended: false }));
 
 // app.get("/", (req, res) => res.render("index"));
 
+// app.use((req, res, next) => {
+//     req.me = data.users[1]
+//     next()
+// })
+
 app.use((req, res, next) => {
-    req.me = data.users[1]
-    next()
-})
+	req.context = {
+		data,
+		me: data.users[1],
+	};
+	next();
+});
 
 app.get('/users', (req, res) => {
-    return res.send(Object.values(data.users))
+    return res.send(Object.values(req.context.data.users))
 })
 
 app.get('/users/:userId', (req, res) => {
-    return res.send(data.users[req.params.userId])
+    return res.send(req.context.data.users[req.params.userId])
 })
 
 app.get('/messages', (req, res) => {
-    return res.send(Object.values(data.messages))
+    return res.send(Object.values(req.context.data.messages))
 })
 
 app.get('/messages/:messageId', (req, res) => {
-    return res.send(data.messages[req.params.messageId])
+    return res.send(req.context.data.messages[req.params.messageId])
 })
 
 app.post('/messages', (req, res) => {
@@ -66,10 +75,10 @@ app.post('/messages', (req, res) => {
     const message = {
         id,
         text: req.body.text,
-        userId: req.me.id
+        userId: req.context.me.id
     }
 
-    data.messages[id] = message
+    req.context.data.messages[id] = message
 
     return res.send(message)
 })
@@ -79,13 +88,20 @@ app.delete('/messages/:messageId', (req, res) => {
 	const {
 	  [req.params.messageId]: message,
 	    ...otherMessages
-	} = data.messages;
+	} = req.context.data.messages;
 
-	data.messages = otherMessages;
+	req.context.data.messages = otherMessages;
 
 	return res.send(message);
 
-})
+});
+
+app.get('/session/', (req, res) => {
+	return res.send(req.data.users[req.context.me.id]);
+});
+
+
+
 
 app.post('/users', (req, res) => {
     return res.send('POST HTTP method on user resource')
