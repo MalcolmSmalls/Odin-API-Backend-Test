@@ -6,7 +6,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const indexRouter = require('./routes/index')
 const dotenv = require('dotenv')
 const data = require("./models/data")
-const { uuid }= require('uuidv4')
+const routes = require('./routes')
 
 // const mongoose = require("mongoose");
 // const Schema = mongoose.Schema;
@@ -32,19 +32,6 @@ app.set("views", path.join( __dirname, 'views'));
 app.set("view engine", "ejs");
 
 
-app.use('/', indexRouter)
-
-app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(express.urlencoded({ extended: false }));
-
-// app.get("/", (req, res) => res.render("index"));
-
-// app.use((req, res, next) => {
-//     req.me = data.users[1]
-//     next()
-// })
 
 app.use((req, res, next) => {
 	req.context = {
@@ -54,66 +41,17 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.get('/users', (req, res) => {
-    return res.send(Object.values(req.context.data.users))
-})
-
-app.get('/users/:userId', (req, res) => {
-    return res.send(req.context.data.users[req.params.userId])
-})
-
-app.get('/messages', (req, res) => {
-    return res.send(Object.values(req.context.data.messages))
-})
-
-app.get('/messages/:messageId', (req, res) => {
-    return res.send(req.context.data.messages[req.params.messageId])
-})
-
-app.post('/messages', (req, res) => {
-    const id = uuid()
-    const message = {
-        id,
-        text: req.body.text,
-        userId: req.context.me.id
-    }
-
-    req.context.data.messages[id] = message
-
-    return res.send(message)
-})
+app.use('/messages', routes.message)
+app.use('/session', routes.session)
+app.use('/users', routes.user)
 
 
-app.delete('/messages/:messageId', (req, res) => {
-	const {
-	  [req.params.messageId]: message,
-	    ...otherMessages
-	} = req.context.data.messages;
-
-	req.context.data.messages = otherMessages;
-
-	return res.send(message);
-
-});
-
-app.get('/session/', (req, res) => {
-	return res.send(req.data.users[req.context.me.id]);
-});
+app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.urlencoded({ extended: false }));
 
 
-
-
-app.post('/users', (req, res) => {
-    return res.send('POST HTTP method on user resource')
-})
-
-app.put('/users/:userId', (req, res) => {
-    return res.send(`PUT HTTP method on user/${req.params.userId} resource`)
-})
-
-app.delete('/users/:userId', (req, res) => {
-    return res.send(`DELETE HTTP method on user/${req.params.userId} resource`)
-})
 
 
 app.listen(3000, () => console.log("app listening on port 3000!"));
